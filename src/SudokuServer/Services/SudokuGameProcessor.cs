@@ -37,23 +37,27 @@ namespace SudokuServer.Services
             {
                 _sudokuBoard.Clear();
                 _sudokuSolver.SolveThePuzzle(true);
-            
-                var available = new HashSet<int>();
                 var random = new Random();
-                var minVal = _sudokuBoard.TOTAL_CELLS / 3 - 1;
-                var maxVal = _sudokuBoard.TOTAL_CELLS / 3 * 2 - 1;
-                var upper = random.Next(minVal, maxVal);
+                var cellGroups = _sudokuBoard.Cells.GroupBy(c => c.GroupNo);
 
-                for (var i = 0; i < upper; i++)
+                foreach (var cellGroup in cellGroups)
                 {
-                    int inx;
-                    do
-                    {
-                        inx = random.Next(1, _sudokuBoard.TOTAL_CELLS - 1);
-                    } while (available.Contains(inx));
+                    var cells = cellGroup.ToArray();
+                    var total = cells.Count();
+                    var upper = random.Next(total / 3, total / 3 * 2);
+                    var available = new HashSet<int>();
 
-                    available.Add(inx);
-                    _sudokuBoard.Cells[inx].Value = -1;
+                    for (var i = 0; i < upper; i++)
+                    {
+                        int inx;
+                        do
+                        {
+                            inx = random.Next(0, total - 1);
+                        } while (available.Contains(inx));
+
+                        available.Add(inx);
+                        cells[inx].Value = -1;
+                    }
                 }
             }
         }
